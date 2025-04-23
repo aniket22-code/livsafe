@@ -1,0 +1,155 @@
+Final Prompt for Replit / Code Generator
+Build a complete medical assistant web application using React.js, Tailwind CSS, and a Flask (app.py) backend. Follow the instructions below in full detail.
+
+🟣 General Overview
+Follow the layout and styling from the attached design mockup: tr_web1.jpg.
+
+Use my custom doctor image and Team Rocket logo.
+
+App should be fully responsive and optimized for desktop + mobile view.
+
+📦 Backend (app.py) – Flask
+Use SQLite for data storage.
+
+On Doctor Signup:
+
+Create a new SQLite DB file for that doctor.
+
+Store grading history, patient details, etc.
+
+On Organization Signup:
+
+Create a separate org-level SQLite DB
+
+Store org credentials, doctor list, and hospital-wide stats.
+
+Backend Endpoints:
+
+/signup (Doctor & Org)
+
+/login
+
+/grade (accepts form + image, returns grade using local CUDA-enabled PyTorch model)
+
+/records, /search, /dashboard
+
+Grade logic connects to a locally hosted model via PyTorch.
+
+Records start at zero on first-time signup.
+
+🟪 Landing Page
+Based on tr_web1.jpg
+
+Left:
+
+#SaveLivers badge
+
+Title: TR – LivSafe
+
+Description: "Powerful ultrasound grading assistant supported by a medical LLM."
+
+Button: Login
+
+Right: Image of a smiling doctor (provided)
+
+Top Navbar:
+
+Links: Dashboard, Solutions, About, Help
+
+Sign up button (top-right)
+
+🔐 Auth Pages
+Login Page: Email + password
+
+Signup Page:
+
+Option to register as:
+
+Doctor → creates personal DB
+
+Organization → creates org DB
+
+📊 Doctor Dashboard
+Dashboard Stats:
+
+Total records
+
+Monthly created records
+
+Average grading accuracy
+
+History section:
+
+Latest reports shown in list
+
+Create New Record → opens Grade Report Page
+
+Pie Chart button → shows F0–F4 grading distribution using Recharts
+
+Navbar:
+
+Dashboard, Search, About, Help
+
+Top-right dropdown from user icon:
+
+Preferences
+
+Update Password
+
+Logout
+
+🧾 Grade Report Page
+Form:
+
+Patient Name, Gender, Age
+
+Upload box for ultrasound image
+
+Grade button:
+
+Sends image + form to Flask /grade
+
+Displays returned grade below
+
+Bottom-right chat icon → opens chatbot page
+
+🔍 Search Page
+Search bar by Patient ID (auto-generated)
+
+Displays relevant entries cleanly
+
+🏥 Organization Dashboard
+Shows all doctors' data
+
+Per-doctor: Remove Doctor button
+
+Top-right: Add Doctor button → opens add form
+
+Org-wide stats:
+
+Total records today/month
+
+Charts + analytics
+
+⚙️ Tech Stack
+Frontend: React.js, Tailwind CSS
+
+Backend: Flask with PyTorch + CUDA
+
+Database: SQLite (dynamic creation)
+
+Charts: Recharts or Chart.js
+
+State: React Context API or Redux
+
+Routing: React Router
+
+📁 Assets Provided
+Team Rocket logo
+
+Doctor image
+
+Design file: tr_web1.jpg
+
+✅ Pro Tip for Local Use
+Ensure the entire application runs completely offline. Use localhost for all frontend-backend communication. Store all data locally using SQLite. Do not rely on any third-party APIs or external cloud services.
