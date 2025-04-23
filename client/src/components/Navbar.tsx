@@ -49,7 +49,7 @@ export function Navbar({ showAuthButtons = true, userType = null }: NavbarProps)
       <div className="hidden md:flex items-center space-x-8">
         {links.map((link) => (
           <Link key={link.href} href={link.href}>
-            <a className="text-white hover:text-primary-100 transition">{link.label}</a>
+            <div className="text-white hover:text-primary-100 transition cursor-pointer">{link.label}</div>
           </Link>
         ))}
       </div>
@@ -91,22 +91,22 @@ export function Navbar({ showAuthButtons = true, userType = null }: NavbarProps)
           <div className="flex flex-col p-4">
             {links.map((link) => (
               <Link key={link.href} href={link.href}>
-                <a className="px-4 py-2 text-white hover:text-primary-100 hover:bg-primary-800 rounded-md">
+                <div className="px-4 py-2 text-white hover:text-primary-100 hover:bg-primary-800 rounded-md cursor-pointer">
                   {link.label}
-                </a>
+                </div>
               </Link>
             ))}
             {showAuthButtons && (
               <div className="mt-4 pt-4 border-t border-primary-600">
                 <Link href="/login">
-                  <a className="block px-4 py-2 text-white hover:text-primary-100 hover:bg-primary-800 rounded-md">
+                  <div className="block px-4 py-2 text-white hover:text-primary-100 hover:bg-primary-800 rounded-md cursor-pointer">
                     Login
-                  </a>
+                  </div>
                 </Link>
                 <Link href="/signup">
-                  <a className="block px-4 py-2 mt-2 bg-accent text-white rounded-md hover:bg-accent/90">
+                  <div className="block px-4 py-2 mt-2 bg-accent text-white rounded-md hover:bg-accent/90 cursor-pointer">
                     Sign up
-                  </a>
+                  </div>
                 </Link>
               </div>
             )}
