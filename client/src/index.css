@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 266 85% 6%;
+  --foreground: 0 0% 98%;
+  --muted: 266 30% 15.9%;
+  --muted-foreground: 265 10% 75%;
+  --popover: 266 85% 6%;
+  --popover-foreground: 0 0% 98%;
+  --card: 266 50% 15%;
+  --card-foreground: 0 0% 98%;
+  --border: 266 35% 20%;
+  --input: 266 35% 20%;
+  --primary: 266 70% 30%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 266 30% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 330 85% 65%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 266 35% 20%;
+  --radius: 0.5rem;
+  
+  /* Chart Colors */
+  --chart-1: 210 100% 70%;
+  --chart-2: 160 100% 70%;
+  --chart-3: 50 100% 70%;
+  --chart-4: 340 100% 70%;
+  --chart-5: 270 100% 70%;
+}
+
+.dark {
+  --background: 266 85% 6%;
+  --foreground: 0 0% 98%;
+  --muted: 266 30% 15.9%;
+  --muted-foreground: 265 10% 75%;
+  --popover: 266 85% 6%;
+  --popover-foreground: 0 0% 98%;
+  --card: 266 50% 15%;
+  --card-foreground: 0 0% 98%;
+  --border: 266 35% 20%;
+  --input: 266 35% 20%;
+  --primary: 266 70% 30%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 266 30% 15.9%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 330 85% 65%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 266 35% 20%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+.clip-path-hero {
+  clip-path: polygon(10% 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+/* Grade badges */
+.grade-f0 {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.grade-f1 {
+  @apply bg-green-100 text-green-800;
+}
+
+.grade-f2 {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.grade-f3 {
+  @apply bg-orange-100 text-orange-800;
+}
+
+.grade-f4 {
+  @apply bg-red-100 text-red-800;
+}
