@@ -1,0 +1,11 @@
+Environment Variables for Railway Backend Deployment:
+
+MONGO_URI=mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster0.xxxxx.mongodb.net/medical_assistant
+JWT_SECRET=medical_assistant_super_secure_jwt_secret_key_for_production_2024
+NODE_ENV=production
+PORT=5000
+
+Replace YOUR_USERNAME and YOUR_PASSWORD with your MongoDB Atlas credentials
+Replace the cluster URL with your actual MongoDB Atlas connection string
+
+After setting these variables, Railway will automatically redeploy your backend.
