@@ -2,6 +2,7 @@ import { Link } from 'wouter';
 import { useState } from 'react';
 import { Logo } from './Logo';
 import { Button } from '@/components/ui/button';
+import { ThemeButton } from './ThemeButton';
 import { Menu, X } from 'lucide-react';
 
 interface NavbarProps {
@@ -49,33 +50,36 @@ export function Navbar({ showAuthButtons = true, userType = null }: NavbarProps)
       <div className="hidden md:flex items-center space-x-8">
         {links.map((link) => (
           <Link key={link.href} href={link.href}>
-            <div className="text-white hover:text-primary-100 transition cursor-pointer">{link.label}</div>
+            <div className="text-white hover:text-black transition cursor-pointer">{link.label}</div>
           </Link>
         ))}
       </div>
       
-      {showAuthButtons && (
-        <Link href="/signup">
-          <Button variant="outline" className="bg-white text-primary-700 hover:bg-primary-50">
-            Sign up
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="ml-1 h-4 w-4"
-            >
-              <path d="M5 12h14" />
-              <path d="m12 5 7 7-7 7" />
-            </svg>
-          </Button>
-        </Link>
-      )}
+      <div className="flex items-center gap-2">
+        <ThemeButton />
+        {showAuthButtons && (
+          <Link href="/signup">
+            <Button variant="outline" className="bg-white text-black hover:bg-gray-100">
+              Sign up
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="ml-1 h-4 w-4"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </Button>
+          </Link>
+        )}
+      </div>
       
       <button onClick={toggleMenu} className="md:hidden text-white">
         {isMenuOpen ? (

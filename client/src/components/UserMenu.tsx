@@ -4,13 +4,17 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ChevronDown } from 'lucide-react';
 
 interface UserMenuProps {
-  initials: string;
+  initials?: string;
+  name?: string;
 }
 
-export function UserMenu({ initials }: UserMenuProps) {
+export function UserMenu({ initials, name }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  
+  const displayName = name || user?.name || 'User';
+  const displayInitials = initials || (user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U');
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -36,7 +40,10 @@ export function UserMenu({ initials }: UserMenuProps) {
         aria-haspopup="true"
       >
         <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center">
-          <span className="text-white font-medium">{initials}</span>
+          <span className="text-white font-medium">{displayInitials}</span>
+        </div>
+        <div className="hidden md:block">
+          <span className="text-white font-medium">{displayName}</span>
         </div>
         <ChevronDown className="text-primary-300 h-4 w-4" />
       </button>

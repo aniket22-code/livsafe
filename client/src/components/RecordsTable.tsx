@@ -77,25 +77,26 @@ export function RecordsTable({
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <div className="flex items-center space-x-3">
                       <button 
-                        className="text-primary-300 hover:text-primary-100"
+                        className="text-primary-300 hover:text-primary-100 transition-colors"
                         onClick={() => onViewRecord && onViewRecord(record.id)}
+                        title="View Record"
                       >
                         <Eye className="h-5 w-5" />
                       </button>
                       <button 
-                        className="text-primary-300 hover:text-primary-100"
+                        className="text-primary-300 hover:text-primary-100 transition-colors"
                         onClick={() => onEditRecord && onEditRecord(record.id)}
+                        title="Edit Record"
                       >
                         <Edit className="h-5 w-5" />
                       </button>
-                      {isSearchResult && onDownloadRecord && (
-                        <button 
-                          className="text-primary-300 hover:text-primary-100"
-                          onClick={() => onDownloadRecord(record.id)}
-                        >
-                          <Download className="h-5 w-5" />
-                        </button>
-                      )}
+                      <button 
+                        className="text-primary-300 hover:text-primary-100 transition-colors"
+                        onClick={() => onDownloadRecord && onDownloadRecord(record.id)}
+                        title="Download Record"
+                      >
+                        <Download className="h-5 w-5" />
+                      </button>
                     </div>
                   </td>
                 </tr>

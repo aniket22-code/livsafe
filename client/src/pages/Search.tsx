@@ -5,72 +5,63 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Search as SearchIcon } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { doctorAPI } from '@/lib/api';
 
 export default function Search() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [gradeFilter, setGradeFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [filteredRecords, setFilteredRecords] = useState<Record[]>([]);
+  const [allRecords, setAllRecords] = useState<Record[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Fetch records from API
-  const { data: records, isLoading, isError } = useQuery({
-    queryKey: ['/api/records'],
-    retry: 1,
-  });
+  const fetchRecords = async () => {
+    try {
+      setLoading(true);
+      const response = await doctorAPI.getRecords();
+      
+      // Transform medical images data to match Record interface
+      const transformedRecords = response?.map((medicalImage: any) => ({
+        id: medicalImage._id,
+        patientName: medicalImage.patient?.fullName || 'Unknown Patient',
+        date: new Date(medicalImage.uploadedAt).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }),
+        grade: medicalImage.grade || 'Pending',
+        confidence: medicalImage.confidence
+      })) || [];
+      
+      setAllRecords(transformedRecords);
+    } catch (error) {
+      console.error('Error fetching records:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to fetch records. Please try again.',
+        variant: 'destructive',
+      });
+      setAllRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (isError) {
-    toast({
-      variant: 'destructive',
-      title: 'Error',
-      description: 'Failed to load records',
-    });
-  }
-
-  // Sample records data (would come from the API in real implementation)
-  const recordsData = records || [
-    {
-      id: 'LIV-2023042',
-      patientName: 'Robert Williams',
-      date: 'May 8, 2023',
-      grade: 'F3',
-      confidence: 89,
-    },
-    {
-      id: 'LIV-2023035',
-      patientName: 'Emily Parker',
-      date: 'May 3, 2023',
-      grade: 'F0',
-      confidence: 95,
-    },
-    {
-      id: 'LIV-2023051',
-      patientName: 'Sarah Johnson',
-      date: 'May 12, 2023',
-      grade: 'F1',
-      confidence: 92,
-    },
-    {
-      id: 'LIV-2023047',
-      patientName: 'Michael Chen',
-      date: 'May 10, 2023',
-      grade: 'F2',
-      confidence: 87,
-    },
-    {
-      id: 'LIV-2023060',
-      patientName: 'David Thompson',
-      date: 'May 15, 2023',
-      grade: 'F4',
-      confidence: 91,
-    },
-  ] as Record[];
+  // Load records on component mount
+  useEffect(() => {
+    fetchRecords();
+  }, []);
 
   // Filter records based on search term and filters
   useEffect(() => {
-    let filtered = [...recordsData];
+    let filtered = [...allRecords];
     
     // Apply search term filter
     if (searchTerm) {
@@ -115,7 +106,7 @@ export default function Search() {
     }
     
     setFilteredRecords(filtered);
-  }, [searchTerm, gradeFilter, dateFilter, records]);
+  }, [searchTerm, gradeFilter, dateFilter, allRecords]);
 
   const handleViewRecord = (id: string) => {
     console.log(`View record ${id}`);
@@ -141,7 +132,7 @@ export default function Search() {
             <div className="relative">
               <Input 
                 type="text" 
-                className="w-full px-5 py-4 pr-12 bg-primary-700 border border-primary-600 rounded-xl text-white" 
+                className="w-full px-5 py-4 pr-12 bg-primary-700 border border-primary-600 rounded-xl text-black" 
                 placeholder="Search by Patient ID, Name, or Date"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -188,15 +179,24 @@ export default function Search() {
           </div>
           
           {/* Search Results */}
-          <RecordsTable
-            records={filteredRecords}
-            showConfidence={true}
-            title="Search Results"
-            isSearchResult={true}
-            onViewRecord={handleViewRecord}
-            onEditRecord={handleEditRecord}
-            onDownloadRecord={handleDownloadRecord}
-          />
+          {loading ? (
+            <div className="bg-primary-700 rounded-xl border border-primary-600 p-8">
+              <div className="flex flex-col items-center justify-center text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+                <p className="text-white text-lg">Loading records...</p>
+              </div>
+            </div>
+          ) : (
+            <RecordsTable
+              records={filteredRecords}
+              showConfidence={true}
+              title="Search Results"
+              isSearchResult={true}
+              onViewRecord={handleViewRecord}
+              onEditRecord={handleEditRecord}
+              onDownloadRecord={handleDownloadRecord}
+            />
+          )}
         </div>
       </section>
     </div>

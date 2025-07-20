@@ -1,4 +1,6 @@
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import { FileText, Mail, Printer, Save } from 'lucide-react';
 
 interface PatientInfo {
   id: string;
@@ -18,6 +20,8 @@ interface GradeResultProps {
 }
 
 export function GradeResult({ patientInfo, fibrosis, analysis }: GradeResultProps) {
+  const { toast } = useToast();
+  
   // Map fibrosis grades to progress percentage
   const gradeToPercentage = {
     'F0': 0,
@@ -42,6 +46,180 @@ export function GradeResult({ patientInfo, fibrosis, analysis }: GradeResultProp
     'F2': 'bg-yellow-500',
     'F3': 'bg-orange-500',
     'F4': 'bg-red-500'
+  };
+
+  const handleDownloadPDF = async () => {
+    try {
+      // Create comprehensive PDF content
+      const pdfContent = `
+MEDICAL IMAGING REPORT
+======================
+
+Patient Information:
+-------------------
+ID: ${patientInfo.id}
+Name: ${patientInfo.name}
+Age: ${patientInfo.age}
+Gender: ${patientInfo.gender}
+Date: ${patientInfo.date}
+
+Fibrosis Assessment:
+------------------
+Grade: ${fibrosis.grade}
+Confidence: ${fibrosis.confidence}%
+Severity: ${getFibrosisDescription(fibrosis.grade)}
+
+AI Analysis:
+-----------
+${analysis.join('\n')}
+
+Report Generated: ${new Date().toLocaleString()}
+System: TR-LivSafe Medical Assistant
+      `;
+      
+      const blob = new Blob([pdfContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `medical-report-${patientInfo.id}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: 'PDF Downloaded',
+        description: `Medical report for ${patientInfo.name} has been downloaded`,
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Download Failed',
+        description: 'Could not generate PDF report',
+      });
+    }
+  };
+
+  const handleEmailReport = () => {
+    try {
+      // Create email content
+      const subject = `Medical Report - ${patientInfo.name} (${patientInfo.id})`;
+      const body = `Dear Colleague,\n\nPlease find the medical imaging report for:\n\nPatient: ${patientInfo.name}\nID: ${patientInfo.id}\nDate: ${patientInfo.date}\nFibrosis Grade: ${fibrosis.grade}\nConfidence: ${fibrosis.confidence}%\n\nBest regards,\nTR-LivSafe Medical System`;
+      
+      const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(mailtoUrl, '_blank');
+      
+      toast({
+        title: 'Email Client Opened',
+        description: 'Medical report email has been prepared',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Email Failed',
+        description: 'Could not open email client',
+      });
+    }
+  };
+
+  const handlePrintReport = () => {
+    try {
+      // Create printable content
+      const printContent = `
+        <html>
+          <head><title>Medical Report - ${patientInfo.name}</title></head>
+          <body style="font-family: Arial, sans-serif; margin: 20px;">
+            <h1>Medical Imaging Report</h1>
+            <hr>
+            <h2>Patient Information</h2>
+            <p><strong>ID:</strong> ${patientInfo.id}</p>
+            <p><strong>Name:</strong> ${patientInfo.name}</p>
+            <p><strong>Age:</strong> ${patientInfo.age}</p>
+            <p><strong>Gender:</strong> ${patientInfo.gender}</p>
+            <p><strong>Date:</strong> ${patientInfo.date}</p>
+            
+            <h2>Assessment Results</h2>
+            <p><strong>Fibrosis Grade:</strong> ${fibrosis.grade}</p>
+            <p><strong>Confidence:</strong> ${fibrosis.confidence}%</p>
+            
+            <h2>Analysis</h2>
+            ${analysis.map(item => `<p>${item}</p>`).join('')}
+            
+            <hr>
+            <p><em>Generated: ${new Date().toLocaleString()}</em></p>
+          </body>
+        </html>
+      `;
+      
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.print();
+      }
+      
+      toast({
+        title: 'Print Dialog Opened',
+        description: 'Medical report is ready for printing',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Print Failed',
+        description: 'Could not open print dialog',
+      });
+    }
+  };
+
+  const handleSaveReport = async () => {
+    try {
+      // Save to localStorage as well as download
+      const reportData = {
+        patient: patientInfo,
+        assessment: fibrosis,
+        analysis: analysis,
+        timestamp: new Date().toISOString()
+      };
+      
+      // Save to localStorage
+      const savedReports = JSON.parse(localStorage.getItem('savedReports') || '[]');
+      savedReports.push(reportData);
+      localStorage.setItem('savedReports', JSON.stringify(savedReports));
+      
+      // Also create downloadable copy
+      const jsonContent = JSON.stringify(reportData, null, 2);
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `saved-report-${patientInfo.id}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: 'Report Saved',
+        description: `Medical report for ${patientInfo.name} has been saved and downloaded`,
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Save Failed',
+        description: 'Could not save report',
+      });
+    }
+  };
+
+  const getFibrosisDescription = (grade: string): string => {
+    const descriptions = {
+      'F0': 'no fibrosis',
+      'F1': 'mild fibrosis without septa',
+      'F2': 'moderate fibrosis with few septa', 
+      'F3': 'severe fibrosis with many septa',
+      'F4': 'cirrhosis'
+    };
+    return descriptions[grade as keyof typeof descriptions] || 'fibrosis assessment';
   };
 
   return (
@@ -120,27 +298,32 @@ export function GradeResult({ patientInfo, fibrosis, analysis }: GradeResultProp
       </div>
       
       <div className="mt-8 flex flex-wrap gap-4">
-        <button className="flex items-center gap-2 bg-accent text-white px-6 py-2.5 rounded-lg font-medium hover:bg-accent/90 transition">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-            <polyline points="17 21 17 13 7 13 7 21"></polyline>
-            <polyline points="7 3 7 8 15 8"></polyline>
-          </svg>
+        <button 
+          onClick={handleSaveReport}
+          className="flex items-center gap-2 bg-accent text-white px-6 py-2.5 rounded-lg font-medium hover:bg-accent/90 transition"
+        >
+          <Save className="h-5 w-5" />
           Save Report
         </button>
-        <button className="flex items-center gap-2 bg-primary-800 text-white px-6 py-2.5 rounded-lg font-medium border border-primary-600 hover:bg-primary-600 transition">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-            <polyline points="6 9 6 2 18 2 18 9"></polyline>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-            <rect x="6" y="14" width="12" height="8"></rect>
-          </svg>
+        <button 
+          onClick={handleDownloadPDF}
+          className="flex items-center gap-2 bg-primary-800 text-white px-6 py-2.5 rounded-lg font-medium border border-primary-600 hover:bg-primary-600 transition"
+        >
+          <FileText className="h-5 w-5" />
+          Download PDF
+        </button>
+        <button 
+          onClick={handlePrintReport}
+          className="flex items-center gap-2 bg-primary-800 text-white px-6 py-2.5 rounded-lg font-medium border border-primary-600 hover:bg-primary-600 transition"
+        >
+          <Printer className="h-5 w-5" />
           Print
         </button>
-        <button className="flex items-center gap-2 bg-primary-800 text-white px-6 py-2.5 rounded-lg font-medium border border-primary-600 hover:bg-primary-600 transition">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-            <polyline points="22,6 12,13 2,6"></polyline>
-          </svg>
+        <button 
+          onClick={handleEmailReport}
+          className="flex items-center gap-2 bg-primary-800 text-white px-6 py-2.5 rounded-lg font-medium border border-primary-600 hover:bg-primary-600 transition"
+        >
+          <Mail className="h-5 w-5" />
           Email
         </button>
       </div>

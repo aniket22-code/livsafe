@@ -20,26 +20,33 @@ export default function Landing() {
                 Powerful ultrasound grading assistant supported by a medical LLM.
               </p>
               
-              <Link href="/login">
-                <Button className="bg-white text-primary-700 hover:bg-primary-50">
-                  Login
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="ml-2 h-4 w-4"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
-                </Button>
-              </Link>
+              <div className="flex gap-4">
+                <Link href="/login">
+                  <Button className="bg-white text-black hover:bg-gray-100">
+                    Login
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="ml-2 h-4 w-4"
+                    >
+                      <path d="M5 12h14" />
+                      <path d="m12 5 7 7-7 7" />
+                    </svg>
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button variant="outline" className="border-white text-black bg-white hover:bg-gray-100">
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
             </div>
             
             {/* Right Image */}

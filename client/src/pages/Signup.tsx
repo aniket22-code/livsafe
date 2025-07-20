@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { apiRequest } from '@/lib/queryClient';
+import { authAPI } from '@/lib/api';
 
 const doctorFormSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -79,33 +79,23 @@ export default function Signup() {
   async function onDoctorSubmit(values: z.infer<typeof doctorFormSchema>) {
     setIsLoading(true);
     try {
-      const response = await apiRequest('POST', '/api/signup/doctor', {
-        firstName: values.firstName,
-        lastName: values.lastName,
+      const result = await authAPI.signupDoctor({
+        fullName: `${values.firstName} ${values.lastName}`,
         email: values.email,
-        specialization: values.specialization,
+        specialty: values.specialization,
         password: values.password,
       });
 
-      if (response.ok) {
-        toast({
-          title: 'Account created',
-          description: 'Your doctor account has been created successfully!',
-        });
-        setLocation('/login');
-      } else {
-        const data = await response.json();
-        toast({
-          variant: 'destructive',
-          title: 'Signup failed',
-          description: data.message || 'Failed to create account',
-        });
-      }
-    } catch (error) {
+      toast({
+        title: 'Account created',
+        description: 'Your doctor account has been created successfully!',
+      });
+      setLocation('/login');
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Signup failed',
-        description: 'An error occurred during signup',
+        description: error.message || 'An error occurred during signup',
       });
     } finally {
       setIsLoading(false);
@@ -115,32 +105,21 @@ export default function Signup() {
   async function onOrganizationSubmit(values: z.infer<typeof organizationFormSchema>) {
     setIsLoading(true);
     try {
-      const response = await apiRequest('POST', '/api/signup/organization', {
+      const result = await authAPI.signupOrganization({
         name: values.orgName,
         email: values.orgEmail,
-        type: values.orgType,
-        password: values.orgPassword,
       });
 
-      if (response.ok) {
-        toast({
-          title: 'Account created',
-          description: 'Your organization account has been created successfully!',
-        });
-        setLocation('/login');
-      } else {
-        const data = await response.json();
-        toast({
-          variant: 'destructive',
-          title: 'Signup failed',
-          description: data.message || 'Failed to create account',
-        });
-      }
-    } catch (error) {
+      toast({
+        title: 'Account created',
+        description: 'Your organization account has been created successfully!',
+      });
+      setLocation('/login');
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Signup failed',
-        description: 'An error occurred during signup',
+        description: error.message || 'An error occurred during signup',
       });
     } finally {
       setIsLoading(false);
@@ -194,7 +173,7 @@ export default function Signup() {
                           <FormControl>
                             <Input
                               placeholder="John"
-                              className="bg-primary-900 border border-primary-600 rounded-xl text-white"
+                              className="bg-primary-900 border border-primary-600 rounded-xl text-black"
                               disabled={isLoading}
                               {...field}
                             />
@@ -212,7 +191,7 @@ export default function Signup() {
                           <FormControl>
                             <Input
                               placeholder="Doe"
-                              className="bg-primary-900 border border-primary-600 rounded-xl text-white"
+                              className="bg-primary-900 border border-primary-600 rounded-xl text-black"
                               disabled={isLoading}
                               {...field}
                             />
@@ -233,7 +212,7 @@ export default function Signup() {
                           <Input
                             type="email"
                             placeholder="doctor@hospital.com"
-                            className="bg-primary-900 border border-primary-600 rounded-xl text-white"
+                            className="bg-primary-900 border border-primary-600 rounded-xl text-black"
                             disabled={isLoading}
                             {...field}
                           />
@@ -259,7 +238,7 @@ export default function Signup() {
                               <SelectValue placeholder="Select specialization" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="bg-primary-900 border border-primary-600 text-white">
+                          <SelectContent className="bg-black border border-primary-600 text-white">
                             <SelectItem value="radiology">Radiology</SelectItem>
                             <SelectItem value="hepatology">Hepatology</SelectItem>
                             <SelectItem value="gastroenterology">Gastroenterology</SelectItem>
@@ -282,7 +261,7 @@ export default function Signup() {
                             <Input
                               type="password"
                               placeholder="••••••••••"
-                              className="bg-primary-900 border border-primary-600 rounded-xl text-white"
+                              className="bg-primary-900 border border-primary-600 rounded-xl text-black"
                               disabled={isLoading}
                               {...field}
                             />
@@ -301,7 +280,7 @@ export default function Signup() {
                             <Input
                               type="password"
                               placeholder="••••••••••"
-                              className="bg-primary-900 border border-primary-600 rounded-xl text-white"
+                              className="bg-primary-900 border border-primary-600 rounded-xl text-black"
                               disabled={isLoading}
                               {...field}
                             />
@@ -332,8 +311,8 @@ export default function Signup() {
                         <FormLabel className="text-primary-100">Organization Name</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Memorial Hospital"
-                            className="bg-primary-900 border border-primary-600 rounded-xl text-white"
+                            placeholder=" Hospital"
+                            className="bg-primary-900 border border-primary-600 rounded-xl text-black"
                             disabled={isLoading}
                             {...field}
                           />
@@ -353,7 +332,7 @@ export default function Signup() {
                           <Input
                             type="email"
                             placeholder="admin@hospital.com"
-                            className="bg-primary-900 border border-primary-600 rounded-xl text-white"
+                            className="bg-primary-900 border border-primary-600 rounded-xl text-black"
                             disabled={isLoading}
                             {...field}
                           />
@@ -379,7 +358,7 @@ export default function Signup() {
                               <SelectValue placeholder="Select organization type" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="bg-primary-900 border border-primary-600 text-white">
+                          <SelectContent className="bg-black border border-primary-600 text-white">
                             <SelectItem value="hospital">Hospital</SelectItem>
                             <SelectItem value="clinic">Clinic</SelectItem>
                             <SelectItem value="research">Research Institution</SelectItem>
@@ -402,8 +381,8 @@ export default function Signup() {
                             <Input
                               type="password"
                               placeholder="••••••••••"
-                              className="bg-primary-900 border border-primary-600 rounded-xl text-white"
-                              disabled={isLoading}
+                              className="bg-primary-900 border border-primary-600 rounded-xl text-black"
+                              
                               {...field}
                             />
                           </FormControl>

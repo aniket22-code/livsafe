@@ -1,12 +1,15 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { apiRequest } from '@/lib/queryClient';
+import { authAPI } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface User {
   id: string;
   email: string;
-  name: string;
+  fullName: string;
+  name?: string;
   type: 'doctor' | 'organization';
+  specialty?: string;
+  organization?: any;
 }
 
 interface AuthContextType {
@@ -36,43 +39,50 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Check if user is already logged in
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/me', {
-          credentials: 'include',
-        });
-
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
+    // Check if user is already logged in (token exists)
+    const checkAuthState = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          // Get current user data using the /me endpoint
+          const userData = await authAPI.getCurrentUser();
+          if (userData) {
+            setUser({
+              ...userData,
+              name: userData.fullName // Add name for backward compatibility
+            });
+          } else {
+            // Token is invalid, remove it
+            localStorage.removeItem('token');
+          }
+        } catch (error) {
+          console.error('Auth check failed:', error);
+          localStorage.removeItem('token');
         }
-      } catch (error) {
-        // Ignore errors during initial auth check
-      } finally {
-        setIsLoading(false);
       }
+      setIsLoading(false);
     };
-
-    checkAuth();
+    
+    checkAuthState();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await apiRequest('POST', '/api/auth/login', {
-        email,
-        password,
-      });
-
-      const userData = await response.json();
-      setUser(userData);
-      return true;
-    } catch (error) {
+      const userData = await authAPI.login(email, password);
+      if (userData) {
+        setUser({
+          ...userData,
+          name: userData.fullName // Add name for backward compatibility
+        });
+        return true;
+      }
+      return false;
+    } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Login failed',
-        description: 'Invalid email or password',
+        description: error.message || 'Invalid email or password',
       });
       return false;
     }
@@ -80,14 +90,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = async (): Promise<void> => {
     try {
-      await apiRequest('POST', '/api/auth/logout', {});
-      setUser(null);
+      await authAPI.logout();
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Logout failed',
-        description: 'Failed to logout properly',
-      });
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
     }
   };
 
